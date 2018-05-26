@@ -1,0 +1,12 @@
+---
+galaxy_info:
+  author: Fabien Schurter
+  description: 'An Ansible role for bootstraping a LAMP stack on Ubuntu.'
+  license: MIT
+  min_ansible_version: 2.4
+  platforms:
+    - name: Ubuntu
+      versions:
+        - all
+dependencies:
+  - fabschurt.ubuntu-base
