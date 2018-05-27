@@ -1,0 +1,10 @@
+---
+- name: Check if Apache config file is enabled
+  stat:
+    path: '/etc/apache2/conf-enabled/{{ item }}.conf'
+  register: conf_stat
+
+- name: Disable Apache config file
+  shell: 'a2disconf {{ item }}'
+  when: conf_stat.stat.exists
+

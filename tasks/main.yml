@@ -1,0 +1,9 @@
+---
+- import_tasks: install.yml
+  tags:
+    - install
+
+- import_tasks: backup.yml
+  tags:
+    - backup
+  when: backup_enabled

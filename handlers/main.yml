@@ -1,0 +1,6 @@
+---
+- name: Reload Apache config
+  listen: fabschurt.ubuntu.lamp.apache_configured
+  service:
+    name: apache2
+    state: reloaded

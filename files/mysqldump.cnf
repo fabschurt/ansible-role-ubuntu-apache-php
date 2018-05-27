@@ -1,0 +1,7 @@
+[mysqldump]
+max_allowed_packet = 16M
+events
+routines
+hex-blob
+single-transaction
+no-autocommit

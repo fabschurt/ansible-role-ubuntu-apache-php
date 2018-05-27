@@ -1,0 +1,66 @@
+---
+- name: Install Apache, PHP (+ some useful extensions) and MySQL
+  apt:
+    name: '{{ item }}'
+    state: latest
+  with_items: '{{ static.lamp_packages }}'
+
+- name: Enable some useful Apache modules
+  apache2_module:
+    name: '{{ item }}'
+    state: present
+  with_items: '{{ static.enabled_apache_modules }}'
+
+- name: Disable some useless/unsecure Apache modules
+  apache2_module:
+    name: '{{ item }}'
+    state: absent
+    force: true
+  with_items: '{{ static.disabled_apache_modules }}'
+
+- name: Tweak Apache config
+  lineinfile:
+    path: '{{ item.path }}'
+    regexp: '{{ item.regexp }}'
+    line: '{{ item.line }}'
+    state: present
+  with_items:
+    -
+      path: /etc/apache2/conf-enabled/charset.conf
+      regexp: '#?AddDefaultCharset '
+      line: 'AddDefaultCharset UTF-8'
+  notify: fabschurt.ubuntu.lamp.apache_configured
+
+- name: Tweak Apache config (paranoid mode)
+  lineinfile:
+    path: '{{ item.path }}'
+    regexp: '{{ item.regexp }}'
+    line: '{{ item.line }}'
+    state: present
+  with_items:
+    -
+      path: /etc/apache2/conf-enabled/security.conf
+      regexp: '^ServerTokens '
+      line: 'ServerTokens Prod'
+    -
+      path: /etc/apache2/conf-enabled/security.conf
+      regexp: '^ServerSignature '
+      line: 'ServerSignature Off'
+  when: paranoid_mode
+
+- include_tasks: partials/disabled_apache_config.yml
+  with_items: '{{ static.disabled_apache_config }}'
+  notify: fabschurt.ubuntu.lamp.apache_configured
+
+- name: Enforce 1-year Apache access log retention
+  lineinfile:
+    path: /etc/logrotate.d/apache2
+    regexp: '^(\s+)rotate '
+    line: '\1rotate 365'
+    backrefs: true
+    state: present
+
+- name: Tweak mysqldump config
+  copy:
+    src: mysqldump.cnf
+    dest: /etc/mysql/conf.d/mysqldump.cnf
