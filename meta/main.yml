@@ -1,7 +1,7 @@
 ---
 galaxy_info:
   author: Fabien Schurter
-  description: 'An Ansible role for bootstraping an application-oriented LAMP stack on Ubuntu.'
+  description: An Ansible role for bootstraping an application-oriented LAMP stack on Ubuntu 18.04.
   license: MIT
   min_ansible_version: 2.4
   platforms:
