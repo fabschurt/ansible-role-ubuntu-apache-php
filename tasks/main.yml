@@ -1,9 +1,8 @@
 ---
 - name: Install Apache, PHP (+ some useful extensions) and MySQL
   apt:
-    name: '{{ item }}'
+    name: '{{ static.lamp_packages }}'
     state: latest
-  with_items: '{{ static.lamp_packages }}'
 
 - name: Enable some useful Apache modules
   apache2_module:
@@ -48,7 +47,7 @@
       line: 'ServerSignature Off'
   when: paranoid_mode
 
-- include_tasks: partials/disabled_apache_config.yml
+- include_tasks: partials/_disable_apache_config.yml
   with_items: '{{ static.disabled_apache_config }}'
   notify: fabschurt.ubuntu.lamp.apache_configured
 
