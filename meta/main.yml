@@ -1,5 +1,6 @@
 ---
 galaxy_info:
+  role_name: ubuntu_lamp
   author: Fabien Schurter
   description: An Ansible role for bootstraping an application-oriented LAMP stack on Ubuntu 18.04.
   license: MIT
@@ -9,4 +10,4 @@ galaxy_info:
       versions:
         - bionic
 dependencies:
-  - fabschurt.ubuntu-base
+  - fabschurt.ubuntu_base
