@@ -58,3 +58,25 @@
     line: '\1rotate 365'
     backrefs: true
     state: present
+
+- name: Tweak PHP (Apache) config
+  lineinfile:
+    path: '/etc/php/7.2/apache2/php.ini'
+    regexp: '{{ item.regexp }}'
+    line: '{{ item.line }}'
+    state: present
+  with_items:
+    -
+      regexp: '^session.use_strict_mode ='
+      line: 'session.use_strict_mode = 1'
+    -
+      regexp: '^session.name ='
+      line: 'session.name = _session'
+    -
+      regexp: '^session.gc_probability ='
+      line: 'session.gc_probability = 1'
+
+- name: Tweak mysqldump’s config
+  copy:
+    src: mysqldump.cnf
+    dest: /etc/mysql/conf.d/mysqldump.cnf

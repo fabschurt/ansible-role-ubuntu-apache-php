@@ -1,0 +1,8 @@
+[mysqldump]
+complete-insert
+events
+hex-blob
+no-autocommit
+routines
+single-transaction
+skip-add-drop-table
