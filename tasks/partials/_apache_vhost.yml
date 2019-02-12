@@ -1,0 +1,59 @@
+---
+- name: Create dedicated log directory
+  file:
+    path: '/var/log/apache2/{{ vhost.name }}'
+    state: directory
+    mode: 'u=rwx,g=rxs,o='
+
+- name: Create the user account that will host the website
+  user:
+    name: '{{ vhost.name }}'
+    state: present
+    shell: /bin/bash
+
+- name: Make user’s home directory readable by Apache (otherwise virtual hosting won’t work)
+  file:
+    path: '/home/{{ vhost.name }}'
+    owner: '{{ vhost.name }}'
+    group: www-data
+    mode: 'u=rwx,g=rx,o='
+
+- name: Make sure the app root exists
+  file:
+    path: '{{ app_root }}'
+    state: directory
+    owner: '{{ vhost.name }}'
+    group: www-data
+    mode: 'u=rwx,g=rxs,o='
+
+- name: Make sure the «virtual» document root exists
+  file:
+    state: link
+    path: '{{ document_root }}'
+    src: "{{ '%s/current'|format(app_root) }}"
+    owner: '{{ vhost.name }}'
+    group: www-data
+    force: true
+    follow: false
+
+- name: Upload the vhost config
+  template:
+    src: vhost.conf
+    dest: '/etc/apache2/sites-available/{{ vhost.name }}.conf'
+    mode: 'u=rw,g=r,o='
+  notify: apache_configured
+
+- name: Enable the vhost
+  command: 'a2ensite {{ vhost.name }}'
+  args:
+    creates: '/etc/apache2/sites-enabled/{{ vhost.name }}.conf'
+
+- name: Authorize deployment public keys
+  authorized_key:
+    user: '{{ vhost.name }}'
+    key: '{{ pubkey }}'
+    state: present
+    exclusive: true
+  with_items: '{{ deploy_pubkeys }}'
+  loop_control:
+    loop_var: pubkey

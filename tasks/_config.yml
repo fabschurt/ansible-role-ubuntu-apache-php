@@ -1,0 +1,103 @@
+---
+- name: Install Apache and PHP (+ some commonly useful extensions)
+  apt:
+    name:
+      - apache2
+      - php7.2
+      - php7.2-apcu
+      - php7.2-bz2
+      - php7.2-curl
+      - php7.2-gd
+      - php7.2-imagick
+      - php7.2-intl
+      - php7.2-mbstring
+      - php7.2-memcache
+      - php7.2-memcached
+      - php7.2-mysql
+      - php7.2-pgsql
+      - php7.2-sqlite3
+      - php7.2-uuid
+      - php7.2-xml
+      - php7.2-zip
+      - composer
+    state: latest
+
+- name: Enable some useful Apache modules
+  apache2_module:
+    name: '{{ item }}'
+    state: present
+  with_items:
+    - expires
+    - headers
+    - rewrite
+
+- name: Disable some useless/unsecure Apache modules
+  apache2_module:
+    name: '{{ item }}'
+    state: absent
+    force: true
+  with_items:
+    - alias
+    - autoindex
+
+- name: Tweak Apache config
+  lineinfile:
+    path: '{{ item.path }}'
+    regexp: '{{ item.regexp }}'
+    line: '{{ item.line }}'
+    state: present
+  with_items:
+    -
+      path: /etc/apache2/conf-enabled/charset.conf
+      regexp: '#?AddDefaultCharset '
+      line: 'AddDefaultCharset UTF-8'
+  notify: apache_configured
+
+- name: Tweak Apache config (paranoid mode)
+  lineinfile:
+    path: '{{ item.path }}'
+    regexp: '{{ item.regexp }}'
+    line: '{{ item.line }}'
+    state: present
+  with_items:
+    -
+      path: /etc/apache2/conf-enabled/security.conf
+      regexp: '^ServerTokens '
+      line: 'ServerTokens Prod'
+    -
+      path: /etc/apache2/conf-enabled/security.conf
+      regexp: '^ServerSignature '
+      line: 'ServerSignature Off'
+  when: paranoid_mode
+
+- include_tasks: partials/_disable_apache_config.yml
+  with_items:
+    - serve-cgi-bin
+  loop_control:
+    loop_var: conf
+  notify: apache_configured
+
+- name: Enforce 1-year Apache access log retention
+  lineinfile:
+    path: /etc/logrotate.d/apache2
+    regexp: '^(\s+)rotate '
+    line: '\1rotate 365'
+    backrefs: true
+    state: present
+
+- name: Tweak PHP config
+  lineinfile:
+    path: '/etc/php/7.2/apache2/php.ini'
+    regexp: '{{ item.regexp }}'
+    line: '{{ item.line }}'
+    state: present
+  with_items:
+    -
+      regexp: '^session.use_strict_mode ='
+      line: 'session.use_strict_mode = 1'
+    -
+      regexp: '^session.name ='
+      line: 'session.name = _session'
+    -
+      regexp: '^session.gc_probability ='
+      line: 'session.gc_probability = 1'
