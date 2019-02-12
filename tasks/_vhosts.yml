@@ -1,0 +1,21 @@
+---
+- name: Set secure permissions on vhost config dir
+  file:
+    path: '/etc/apache2/{{ item }}'
+    mode: 'u=rwx,g=rx,o='
+  with_items:
+    - sites-available
+    - sites-enabled
+
+- name: Set secure permissions on Apache log directory
+  file:
+    path: /var/log/apache2
+    mode: 'u=rwx,g=rxs,o='
+
+- include_tasks: partials/_apache_vhost.yml
+  vars:
+    app_root: "{{ '/home/%s/app'|format(vhost.name) }}"
+    document_root: "{{ '/home/%s/public_html'|format(vhost.name) }}"
+  with_items: '{{ vhosts }}'
+  loop_control:
+    loop_var: vhost

@@ -1,6 +1,19 @@
 ---
-- hosts: 127.0.0.1
-  connection: local
-  become: true
+- hosts: ansible-vm
   roles:
-    - role: ../ansible-role-ubuntu-lamp
+    - role: ../ansible-role-ubuntu-apache-php
+      deploy_pubkeys:
+        - 'http://github.com/fabschurt.keys'
+      vhosts:
+        - name: some_app
+          http_port: 443
+          server_name: example.org
+          server_aliases:
+            - www.example.org
+            - test.example.org
+          additional_config: |
+            DefaultType text/html
+            AddCharset UTF-8
+
+        - name: other_stuff
+          server_name: internet.com

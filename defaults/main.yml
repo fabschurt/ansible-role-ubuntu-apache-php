@@ -1,2 +1,5 @@
 ---
 paranoid_mode: true
+default_http_port: 80
+deploy_pubkeys: []
+vhosts: []
