@@ -11,9 +11,12 @@
           server_aliases:
             - www.example.org
             - test.example.org
-          additional_config: |
+          additional_vhost_config: |
             DefaultType text/html
-            AddCharset UTF-8
+            FileETag All
+          additional_docroot_config: |
+            php_admin_value post_max_size 8M
+            php_admin_value upload_max_filesize 4M
 
         - name: other_stuff
           server_name: internet.com

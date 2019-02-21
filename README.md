@@ -37,12 +37,12 @@ This role is configurable with the following variables:
       Apache directive
     - `server_aliases*`: an array of alias FQDNs that will be concatenated as the
       value of the `ServerAlias` Apache directive
-    - `additional_config*`: a string containing some literal Apache config that
-      will be inserted at the end of the vhost’s Ansible-generated config (you
-      should use a YAML [block literal](https://en.wikipedia.org/wiki/YAML#Indented_delimiting)
-      string here); caution: this will be inserted inside a `<Directory>` block
-      matching the app’s document root, so you can’t use all existing directives
-      here
+    - `additional_vhost_config*`: a string containing some literal Apache config
+      that will be inserted at the end of the vhost’s Ansible-generated config
+      (you should use a YAML [block literal](https://en.wikipedia.org/wiki/YAML#Indented_delimiting)
+      string here)
+    - `additional_docroot_config*`: same thing as above but scoped to the vhost’s
+      document root folder thanks to a `<Directory>` directive
 
 See the [Example playbook](#example-playbook) section below for a reference of
 these variables’ default values.
